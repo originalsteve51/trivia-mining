@@ -1,0 +1,34 @@
+
+NOTES ABOUT jtrivia.db
+======================
+
+The database schema is designed so that showinfo is a parent of questions for the show. Questions are the parents of corresponding answers. So deletion of a showinfo should remove all questins and answers from the show that is deleted. 
+
+Categories that are added for a show are not deleted if the show is deleted, however. I may change this as I continue to develop. Categories are also parents of questions in the sense that if a category is deleted, all associated questions (and answers) are deleted as well. Foreign key relationships (using ON DELETE CASCADE) are used to control these behaviors. 
+
+Note that by default the database does not recognize foreign key relationships. I do not know why sqlite3 chooses this behavior. To cause foreign keys to be used, a connection attribute is set as 
+seen in the constructor of the DatabaseAccessor class. The setting is made using this command...
+		
+		PRAGMA foreign_keys = ON
+
+To connect to the database in a terminal session with foreign key behavior enforced:
+
+sqlite3
+.open jtrivia.db
+PRAGMA foreign_keys = ON
+
+At this point SQL statements can be entered at the terminal prompt. A semicolon is required at the end of each statement that you enter.
+
+
+
+Following are a few good queries to use when debugging the database.
+
+select category_id, category_name from categories;
+
+select * from showinfo;
+
+select categories.category_name,questions.question_text, answers.answer_text from questions, categories,answers where questions.category_id = categories.category_id and answers.question_id=questions.question_id and categories.category_id=2;
+
+select category_name,question_text,answer_text from questions, categories,answers where questions.category_id = categories.category_id and answers.question_id=questions.question_id and categories.category_id=2;
+
+
