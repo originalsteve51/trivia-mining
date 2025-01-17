@@ -14,7 +14,9 @@ sqlite3 "$DB_NAME" <<EOF
 -- Create the Seasons table
 CREATE TABLE IF NOT EXISTS Seasons (
     season_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    season_number INTEGER NOT NULL UNIQUE
+    season_number INTEGER NOT NULL UNIQUE,
+    is_downloaded BOOLEAN NOT NULL DEFAULT 0
+
 );
 
 -- Create the Webrefs table
@@ -22,6 +24,7 @@ CREATE TABLE IF NOT EXISTS Webrefs (
     webref_id INTEGER PRIMARY KEY AUTOINCREMENT,
     webref INTEGER NOT NULL,
     season_id INTEGER NOT NULL,
+    is_downloaded BOOLEAN NOT NULL DEFAULT 0,
     FOREIGN KEY (season_id) REFERENCES Seasons(season_id) ON DELETE CASCADE
 );
 
@@ -41,9 +44,10 @@ CREATE TABLE IF NOT EXISTS Questions (
     question_text TEXT NOT NULL,
     difficulty_id INTEGER NOT NULL,  
     category_id INTEGER NOT NULL,  
-    showinfo_id INTEGER NOT NULL,  
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    showinfo_id INTEGER NOT NULL,
+    stage_for_use_by INTEGER DEFAULT 0,  
+    -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (showinfo_id) REFERENCES Showinfo(showinfo_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES Categories(category_id) ON DELETE CASCADE
     

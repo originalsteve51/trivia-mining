@@ -149,6 +149,17 @@ class DatabaseAccessor():
 		else:
 			return None
 
+	# Function to update a season to show it has been downloaded
+	def update_season_downloaded(self, season_number, is_downloaded, commit=False):
+	    sql = ''' UPDATE Seasons 
+	              SET is_downloaded = ?  
+	              WHERE season_number = ? '''
+	    cur = self.conn.cursor()
+	    cur.execute(sql, (is_downloaded, season_number))
+	    if commit:
+	    	self.conn.commit()
+
+
 	# Function to create a webref record
 	def create_webref(self, webref_number, season_id, commit=False):
 	    sql = ''' INSERT INTO Webrefs(webref, season_id)
@@ -159,12 +170,51 @@ class DatabaseAccessor():
 	    	self.conn.commit()
 	    return cur.lastrowid
 
-	def get_webref(self, season_number):
-		sql = ''' SELECT WEBREF FROM WEBREFS WHERE SEASON_ID = ?'''
+	def get_season_id(self, season_number):
+		sql = '''SELECT SEASON_ID FROM SEASONS WHERE SEASON_NUMBER = ? '''
 		cur = self.conn.cursor()
-		cur.execute(sql, (season_number))
+		cur.execute(sql, (season_number,))
+		row = cur.fetchone()
+		return row[0]
+
+	def get_webref(self, season_id):
+		sql = ''' SELECT WEBREF_ID, WEBREF FROM WEBREFS WHERE SEASON_ID = ? AND is_downloaded = 0'''
+		cur = self.conn.cursor()
+		cur.execute(sql, (season_id,))
 		row = cur.fetchone()
 		if row:
-			return row[0]
+			return row
 		else:
 			return None
+
+	def update_webref_downloaded_for_webref(self, webref, is_downloaded, commit=False):
+		sql = ''' UPDATE WEBREFS 
+			SET is_downloaded = ?  
+			WHERE webref = ? '''
+		cur = self.conn.cursor()
+		cur.execute(sql, (is_downloaded, webref))
+		if commit:
+			self.conn.commit()
+		
+	# Function to update a webref to show it has been downloaded
+	def update_webref_downloaded(self, webref_id, is_downloaded, commit=False):
+	    sql = ''' UPDATE WEBREFS 
+	              SET is_downloaded = ?  
+	              WHERE webref_id = ? '''
+	    cur = self.conn.cursor()
+	    cur.execute(sql, (is_downloaded, webref_id))
+	    if commit:
+	    	self.conn.commit()
+
+	# Function to be used when reviewing questions and deciding whether or not
+	# to use in a game. The staging_code is an integer to allow staging for different
+	# games, eg all questions with value of 1 are for game whose code is established
+	# as 1, value 2 is for a different game, 3 for still another game, and so on. 
+	def update_questions_stage_for_use(self, question_id, staging_code, commit=False):
+		sql = ''' UPDATE QUESTIONS
+				  SET stage_for_use_by = ?
+				  WHERE question_id = ? '''
+		cur = self.conn.cursor()
+		cur.execute(sql, (staging_code, question_id))
+		if commit:
+			self.conn.commit()	 

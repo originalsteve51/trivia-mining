@@ -1,5 +1,5 @@
 # --------------------
-# j-show-listing.py
+# j-webids.py
 #
 # Obtain a listing of the show web ids for a given season of Jeopardy
 #
@@ -54,7 +54,7 @@ if __name__ == '__main__':
 	num_args = len(sys.argv)
 
 	if num_args != 2:
-		print('You must provide an integer show index when invoking this program...')
+		print('You must provide an season number when invoking this program...')
 		sys.exit(0)
 	else:
 		season_number = int(sys.argv[1])

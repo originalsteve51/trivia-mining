@@ -31,4 +31,28 @@ select categories.category_name,questions.question_text, answers.answer_text fro
 
 select category_name,question_text,answer_text from questions, categories,answers where questions.category_id = categories.category_id and answers.question_id=questions.question_id and categories.category_id=2;
 
+Starting from scratch
+_____________________
+rm jscrape.log
+
+./setup_jtrivia_db.sh
+
+python j-webids.py nn (where nn is a season number)
+
+./get_season.sh nn (where nn is a season number)
+
+review/process jscrape.log each time a season is processed.
+
+processing of jscrape.log is needed to mark webrefs.is_downloaded to 0 (false) for each item
+logged with download failure in the log file
+
+someday the failed webrefs may be corrected when the scraping process in j-scrape.py is made
+more robust
+
+python process_jscrape_log.py 
+
+
+
+
+
 

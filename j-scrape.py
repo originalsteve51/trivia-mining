@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import re
 
 import sys
+import logging
 
 from dbaccess import DatabaseAccessor
 
@@ -18,9 +19,14 @@ categories = []
 board = []
 
 
+
 category_set = set()
 difficulty_set = set()
 show_number_set = set()
+
+MISSING_ITEMS_ERROR = 'ec0001'
+DUPLICATION_ERROR = 'ec0002'
+
 
 def extract_show_number(title_text):
 	matches = re.findall(r'#\s*(\d+)', title_text)
@@ -82,11 +88,16 @@ class JScrapeError(Exception):
         self.message = message
 
     def __str__(self):
-        return f"{self.message} (Error Code: {self.error_code})"		
+        return f"{self.message} (Error Code: {self.error_code})"
+
+    def get_error_code(self):
+    	return self.error_code		
 
 # ############################################        
 
 if __name__ == '__main__':
+	logger = logging.getLogger(__name__)
+	logging.basicConfig(filename='jscrape.log', level=logging.ERROR)
 
 	num_args = len(sys.argv)
 
@@ -155,21 +166,19 @@ if __name__ == '__main__':
 			# Show 9030 (id=8791) causes an error because len(answers) 
 			# exceeds len(questions)
 
-			for idx in range(0, len(answers)):
+			valid_answers = len(answers)
+			valid_questions = len(questions)
+			valid_items = 0
+			if valid_answers == valid_questions and valid_answers == 61:
+				valid_items = 61;
+			if (valid_items!=61):
+				raise JScrapeError(f"A: {valid_answers} Q: {valid_questions}, from web_id {web_id}. Not processing it.", MISSING_ITEMS_ERROR)
+
+			for idx in range(0, valid_items):
 				# Each summary comprises information about a single question from a J board
 				offset = get_offset(idx)
 				difficulty = get_difficulty(idx)
 				category = categories[(idx%6) + offset]
-
-				"""
-				summary = {'cat':category, 
-							'q': questions[idx], 
-							'a':answers[idx], 
-							'diff': difficulty,
-							'show_num': show_number,
-							'show_date': show_date,
-							'game_comments': game_comments}
-				"""
 
 				show_info_id = db.get_showinfo(show_number)
 				if not show_info_id: 
@@ -186,20 +195,26 @@ if __name__ == '__main__':
 				question_id = db.create_question(questions[idx], difficulty_id, category_id, show_info_id)
 				db.create_answer(answers[idx], question_id, 1)	
 		else:
-			print(f'Not adding anything to the database because show number {show_number} is already loaded')	
-			raise JScrapeError("Duplicate page processing not allowed", show_number)
+			x= f'Not adding anything to the database because web id {web_id} is already loaded'
+			raise JScrapeError(x, DUPLICATION_ERROR)
 	except Exception as e:
-		print('=======')
-		print(f'======> Exception occurred: {e} rolling back the database transaction.')
-		print('=======')
+		x = f'Exception occurred: {e} rolling back the database transaction.'
+		logger.error(x)
+		print(f'======> {x}')
 		db.rollback()
+
+		# When a page fails due to not having 61 q's and a's, mark it as not downloaded
+		# Note that it will have been optimistically marked downloaded at the start
+		'''
+		if e.get_error_code() == MISSING_ITEMS_ERROR:	
+			db.update_webref_downloaded_for_webref(web_id, False, True)
+		'''
+		
 	else:
-		print('=======')
 		db.commit()
 		print('=======> Finished processing without any Exceptions')
-		print('=======')
 	finally:
-		print('Executing the finally block before exiting')
+		print('\n')
 
 
 
