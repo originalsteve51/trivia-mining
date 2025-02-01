@@ -1,4 +1,21 @@
+################
+# Process a log file written during screen scraping Jeopardy screens.
+# Each log record that matches a criterion that indicates a failure
+# is used to get the webid of the failing screen. The database is marked
+# to show that this failure occurred. Someday failed screens can be retried
+# when more robust screen scraping is developed.
+################
 import re
+import os
+import sys
+
+# For now, I want to use dbaccess.py in the parent directory.
+# Fix up the path searched by Python for modules to include the absolute path
+# to the parent directory...
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', ''))
+sys.path.insert(0, parent_dir)
+
+
 from dbaccess import DatabaseAccessor
 
 def extract_web_ids(filename):
@@ -18,7 +35,7 @@ def extract_web_ids(filename):
 
 if __name__ == "__main__":
 
-    db = DatabaseAccessor('jtrivia.db')
+    db = DatabaseAccessor('../jtrivia.db')
 
     # Specify the path to the log file
     filename = 'jscrape.log'

@@ -1,4 +1,23 @@
+======================
+Backing up j_trivia directory to my external solid-state drive
 
+After attaching the SSD to my MacBook, open a terminal window and move to the
+j_trivia directory on the SSD.
+
+cd /Volumes/SVP\ Ext\ 1Tb
+
+At this point pwd shows the following on the external drive
+/Volumes/SVP Ext 1Tb/j_trivia
+
+Note that the cmd prompt does not show this path when on the external device.
+
+Then
+cd j_trivia
+
+Finally
+cp -R ~/mycode/j_trivia .
+
+This copies into directory j_trivia under the j_trivia directory. That's fine.
 
 NOTES ABOUT jtrivia.db
 ======================
@@ -36,6 +55,7 @@ Workflow for Mining Q's and A's from Jeopardy Archive
 _____________________________________________________
 
 - CAUTION: Do the first step only if starting over! 
+- NOTE: The virtual env is named 'trivia'
 
 - Make an empty database.
 ./setup_jtrivia_db.sh
@@ -47,7 +67,8 @@ select * from seasons;
 - Obtain a new season's worth of webids. You can do this for multiple
 seasons. 
 
-python j-webids.py nn (where nn is a season number not already loaded)
+./activate_run_python.sh j-webids.py nn
+(where nn is a season number not already loaded)
 
 You can see which seasons already have webids loaded by using this sql:
 
@@ -58,8 +79,8 @@ select distinct season_number from webrefs inner join seasons where webrefs.seas
 
 - After completing one or more seasons, you should review/process jscrape.log
 
-Processing jscrape.log is needed to mark webrefs.is_downloaded to 0 (false) for each item
-logged with download failure in the log file
+Processing jscrape.log is needed to mark webrefs.is_downloaded to 1 (True) for each item
+NOT logged with download failure in the log file
 
 Someday the failed webrefs may be corrected when the scraping process in j-scrape.py is made to be more robust. Now a screen is only considered 'valid' when exactly 61 questions and 61 answers are found.
 

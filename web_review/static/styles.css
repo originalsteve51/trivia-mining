@@ -1,0 +1,168 @@
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: Arial, sans-serif;
+
+      /* Prevent text-selection in each of the main browsers */
+      -webkit-user-select: none; /* Safari */
+      -moz-user-select: none;    /* Firefox */
+      -ms-user-select: none;     /* Internet Explorer */
+      user-select: none;         /* Non-prefixed version, currently for Chrome */
+    
+}
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: darksalmon;
+    color: black;
+    border-bottom: 1px solid #ccc;
+    z-index: 1000;
+}
+.title {
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1.5em;
+    background-color: darksalmon;
+    color: black;
+}
+
+.header-admin {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: cadetblue;
+    color: white;
+    border-bottom: 1px solid #ccc;
+    z-index: 1000;
+}
+
+.header-listener {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: green;
+    color: white;
+    border-bottom: 1px solid #ccc;
+    z-index: 1000;
+}
+
+.title-admin {
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1.5em;
+    background-color: cadetblue;
+    color: white;
+}
+
+.title-listener {
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1.5em;
+    background-color: green;
+    color: white;
+}
+
+.columns {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+.columnheader {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    background-color: darksalmon;
+    color: black;
+    /* border: 1px solid #ccc; */
+}
+.columnheader-admin {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    background-color: cadetblue;
+    color: white;
+    /* border: 1px solid #ccc; */
+}
+
+.columnheader-listener {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    background-color: green;
+    color: white;
+    /* border: 1px solid #ccc; */
+}
+
+.narrow {
+    flex: 0 0 5%; /* One twentieth of the other columns */
+    width: 5%;
+}
+.content {
+    margin-top: 100px; /* Add top margin to ensure content does not overlap with fixed header */
+    padding: 20px;
+}
+
+
+.column {
+    flex: 1; /* Each column takes equal space */
+    padding: 0px; /* Padding for columns */
+    text-align: center; /* Center text in columns */
+    border: 1px solid #ddd; /* Border for visual separation (optional) */
+}
+.column.right{
+    text-align:right;
+}
+
+.content{
+    margin-top: 140px;
+    padding: 0px;
+}
+
+#row-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0px; /* Space between rows */
+    margin-top: 0px; /* Create space below the fixed header */
+    padding: 0px;
+} 
+.row {
+    display: flex; /* Use Flexbox for row layout */
+    justify-content: space-between; /* Space columns evenly */
+    padding-top: 0px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border: 0px solid #ccc; 
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+.row-first{
+    display: flex; /* Use Flexbox for row layout */
+    justify-content: space-between; /* Space columns evenly */
+    padding-top: 0px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border: 0px solid #ccc; 
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: palegreen;
+    color: black;
+}
+.row.active {
+    background-color: blue;
+    color: white;
+}
+.row.active-row {
+    background-color: mistyrose; /* Highlight the active row */
+    color: black; /* Change text color to black */
+}
+a, u {
+  text-decoration: none;
+}

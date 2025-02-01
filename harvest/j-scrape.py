@@ -7,9 +7,16 @@
 import requests 
 from bs4 import BeautifulSoup
 import re
-
-import sys
 import logging
+
+import os
+import sys
+
+# For now, I want to use dbaccess.py in the parent directory.
+# Fix up the path searched by Python for modules to include the absolute path
+# to the parent directory...
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', ''))
+sys.path.insert(0, parent_dir)
 
 from dbaccess import DatabaseAccessor
 
@@ -108,7 +115,7 @@ if __name__ == '__main__':
 		web_id = int(sys.argv[1])
 	
 	
-	db = DatabaseAccessor('jtrivia.db')
+	db = DatabaseAccessor('../jtrivia.db')
 
 
 	try:

@@ -38,6 +38,37 @@ class DatabaseAccessor():
 	    for row in rows:
 	        print(row)
 
+	# Function to read all questions given a category id
+	def read_questions_for_catid(self, cat_id):
+	    
+	    query = f'select category_name,question_text,answer_text from questions, categories,answers where questions.category_id = categories.category_id and answers.question_id=questions.question_id and categories.category_id={cat_id};'
+	    cur = self.conn.cursor()
+	    cur.execute(query)
+	    rows = cur.fetchall()
+	    a_row = rows[0]
+	    print(f'\n{a_row[0]}\n')
+	    for row in rows:
+	        print(f'{row[1]}\n{row[2]}\n')
+
+	def random_q_a(self, difficulty_level):
+		query = f'SELECT si.show_date, c.category_name, q.question_text, a.answer_text, d.difficulty_level\
+		          FROM questions q\
+		          JOIN difficulties d ON q.difficulty_id = d.difficulty_id\
+		          JOIN categories c ON q.category_id = c.category_id\
+		          JOIN showinfo si ON q.showinfo_id = si.showinfo_id\
+		          LEFT JOIN answers a ON q.question_id = a.question_id\
+		          WHERE d.difficulty_level = {difficulty_level}\
+		          ORDER BY RANDOM()\
+		          LIMIT 1'
+		cur = self.conn.cursor()
+		cur.execute(query)
+		row = cur.fetchone()
+		if row:
+			return row
+		else:
+			return None
+
+
 	# Function to update a question
 	def update_question(self, question_id, question_text, difficulty_id, category_id, showinfo_id, commit=False):
 	    sql = ''' UPDATE Questions 
