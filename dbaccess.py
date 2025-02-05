@@ -6,7 +6,7 @@ class DatabaseAccessor():
 	def __init__(self, db_file):
 		self.conn = None
 		try:
-			conn = sqlite3.connect(db_file)
+			conn = sqlite3.connect(db_file, check_same_thread=False)
 			cur = conn.cursor()
 			cur.execute('PRAGMA foreign_keys = ON')
 			conn.commit()
@@ -51,13 +51,13 @@ class DatabaseAccessor():
 	        print(f'{row[1]}\n{row[2]}\n')
 
 	def random_q_a(self, difficulty_level):
-		query = f'SELECT si.show_date, c.category_name, q.question_text, a.answer_text, d.difficulty_level\
+		query = f'SELECT si.show_date, c.category_name, q.question_text, a.answer_text, d.difficulty_level, q.question_id\
 		          FROM questions q\
 		          JOIN difficulties d ON q.difficulty_id = d.difficulty_id\
 		          JOIN categories c ON q.category_id = c.category_id\
 		          JOIN showinfo si ON q.showinfo_id = si.showinfo_id\
 		          LEFT JOIN answers a ON q.question_id = a.question_id\
-		          WHERE d.difficulty_level = {difficulty_level}\
+		          WHERE d.difficulty_level = {difficulty_level} and q.stage_for_use_by != -1\
 		          ORDER BY RANDOM()\
 		          LIMIT 1'
 		cur = self.conn.cursor()
@@ -67,7 +67,16 @@ class DatabaseAccessor():
 			return row
 		else:
 			return None
-
+	
+	# Function to reject a question
+	def mark_question_rejected(self, question_id, commit=False):
+	    sql = ''' UPDATE Questions 
+	              SET stage_for_use_by = -1
+	              WHERE question_id = ? '''
+	    cur = self.conn.cursor()
+	    cur.execute(sql, (question_id,))
+	    if commit:
+	    	self.conn.commit()
 
 	# Function to update a question
 	def update_question(self, question_id, question_text, difficulty_id, category_id, showinfo_id, commit=False):

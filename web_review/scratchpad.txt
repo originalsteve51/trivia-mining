@@ -7,4 +7,7 @@ Start the webviewer as follows:
     -- OR --
 ./activate_run.sh prod_web.sh
 
-The host info in your choice is used to run the web server.     
+The host info in your choice is used to run the web server.   
+
+On server svpserver5.ddns.net, Auto start after re-boot is done via an entry
+in /etc/rc.local  

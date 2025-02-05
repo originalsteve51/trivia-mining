@@ -1,69 +1,149 @@
-/*
-Javascript that obtains row data in JSON format by getting /get_rows.
-The JSON is parsed row by row. Data is added to the rowContainer div 
-of index.html as div elements that are children of the rowContainer
-div. Each row can be toggled by clicking. 
-*/
-song_number = 0
 
 const rowContainer = document.getElementById('row-container');
-function createRow(textArray) {
-    const rowDiv = document.createElement('div');
-    if (song_number == 0)
-        rowDiv.className = 'row-first';
-    else
-        rowDiv.className = 'row';
-    // Create four columns
-    textArray.forEach((text, index) => {
-        if (index<4)
+
+_last_question_id = 0;
+
+function lengthOfLongestWord(s) 
+{
+    // Split the string into words using space as a delimiter
+    const words = s.split(' ');
+
+    // Use reduce to find the length of the longest word
+    const longestLength = words.reduce((maxLength, word) => 
+    {
+        return Math.max(maxLength, word.length);
+    }, 0);  // Initialize with 0
+    
+    return longestLength;
+}
+
+function createRow(textArray) 
+{
+    difficulty = ''
+    date_string = ''
+    textArray.forEach((text, index) => 
+    {
+        if (index < 3)
         {
             const columnDiv = document.createElement('div');
-            columnDiv.className = 'column';
-            columnDiv.innerText = text;
-            // Update whole row on column click
-            //columnDiv.onclick = (event) => {
-            //    event.stopPropagation(); // Prevent triggering parent row click
-            //    rowDiv.classList.toggle('active-row');
-            //};
-            rowDiv.appendChild(columnDiv);
+            if (index==0)
+            {
+                if (lengthOfLongestWord(text) > 10)
+                {
+                    columnDiv.className = 'column content-category-8';
+                }
+                else
+                {
+                    columnDiv.className = 'column content-category-12';
+                }
+            }
+            else if (index==1)
+                columnDiv.className = 'column content-question';
+            else if (index==2)
+            {
+                columnDiv.className = 'column content-answer';
+                columnDiv.id = 'theAnswer'
+            }
+            /*
+            else 
+                columnDiv.className = 'column content-date';
+            */
+            columnDiv.innerHTML = '<b>'+text+'<b>';
+            rowContainer.appendChild(columnDiv);
+        }
+        else if (index == 3)
+        {
+            // Place the date at the bottom of the category column
+            // instead of putting it into its own column.
+            date_string = text;
+        }
+        else if (index == 4)
+        {
+            // Add the difficulty to the category, which happens to
+            // be the firstChild of the rowContainer
+            rowContainer.firstChild.innerHTML += ('<br><b>'+text+'</b>');
+            rowContainer.firstChild.innerHTML += ('<br><br><b>'+date_string+'</b>');
+            console.log(rowContainer.firstChild.innerHTML);
+        }
+        else if (index == 5)
+        {
+            _last_question_id = text;
+            console.log('last_question_id: ', _last_question_id)
         }
     });
-    
-    const colDiv = document.createElement('div');
-    colDiv.innerHTML='<a class="fa fa-info-circle" style="font-size:18px" href="/get_song_info?song_number='+textArray[4]+'"></a>';
-    colDiv.className = 'column.right';
-    song_number = song_number+1;
-    rowDiv.appendChild(colDiv);
-    return rowDiv;
 }
-async function fetchRows() {
-    song_number = 0;
-    try {
-        const response = await fetch('/get_rows'); // Here we get the data from setlist_web.py
+
+
+
+function populateRow(data) 
+{
+    rowContainer.innerHTML = ''; 
+    const aRow = createRow(data);
+}
+
+
+async function fetchQ_A() 
+{
+    try 
+    {
+        const response = await fetch('/api/next_q_a'); 
         const data = await response.json();
-        populateRows(data);
-    } catch (error) {
+        populateRow(data);
+    } 
+    catch (error) 
+    {
         console.error('Error fetching data:', error);
     }
 }
-function populateRows(data) {
-    rowContainer.innerHTML = ''; // Clear existing rows
-    data.forEach((textArray) => {
-        console.log(textArray)
-        const row = createRow(textArray);
-        rowContainer.appendChild(row);
-    });
+
+async function rejectLastQuestion() 
+{
+    try 
+    {
+        const response = await fetch('/api/reject_question', 
+        {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ 'question_id': _last_question_id })
+        });
+
+        if (!response.ok) 
+        {
+            throw new Error('Network response was not ok: ' + response.statusText);
+        }
+
+
+        const result = await response.json();
+        console.log('Server response:', result);
+    } catch (error) 
+    {
+        console.error('Error notifying server:', error);
+    }
 }
+
+
+document.getElementById('nextButton').addEventListener('click', function() {
+    console.log('Next button clicked');
+    fetchQ_A();
+    
+});
+
+document.getElementById('answerButton').addEventListener('click', function() {
+    console.log('Answer button clicked');
+    document.getElementById('theAnswer').className='column content-visible-answer';
+});
+
+document.getElementById('rejectButton').addEventListener('click', function() {
+    console.log('Reject button clicked for question_id: ', _last_question_id);
+    rejectLastQuestion();
+    fetchQ_A();
+});
+
 
 document.addEventListener("DOMContentLoaded", 
     function()
     {
         console.log("The page was either loaded or refreshed");
 
-        // Need to clear rows before getting them again, otherwise
-        // the list keeps repeating itself
-        rowContainer.innerHTML = ''; // Clear existing rows
-        fetchRows();
-        setInterval(fetchRows, 1000)
+        fetchQ_A();
     });
-

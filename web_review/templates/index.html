@@ -3,29 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Set List</title>
+    <title>Trivia Review</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')  }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
-
 </head>
 <body>
-    <header class="header">
-        <div class="title">{{playlist_name}}</div>
+    <div class="header">
+        <h2>Trivia Review</h2>
         <div class="columns">
-            <div class="columnheader">Song Name</div>
-            <div class="columnheader">Artist</div>
-            <div class="columnheader">Album</div>
-            <div class="columnheader">Released</div>
-            <div class="columnheader narrow">&nbsp;</div>
+            <div class="column header-column">Category</div>
+            <div class="column header-column">Question</div>
+            <div class="column header-column">Answer</div>
+            <!-- <div class="column header-column">Date</div> -->
         </div>
-    </header>
-    <main class="content">
-        <div id="row-container">
-            <!-- Rows will be populated here by JavaScript -->
+    </div>
+    <div class="content">
+        <div id="row-container" class="row">
+            <div class="column content-category"></div>
+            <div class="column content-question"></div>
+            <div class="column content-answer"></div>
+            <!-- <div class="column content-date"></div> -->
         </div>
-    </main>    
+    </div>
+    <div class="button-container">
+        <button id="nextButton">Next</button>
+        <button id="answerButton">Show Answer</button>
+        <button id="rejectButton" class="button-reject">Reject</button>
+    </div>
     <script src="{{ url_for('static', filename='js/script.js')  }}"></script>
 </body>
 </html>
