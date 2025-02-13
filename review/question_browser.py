@@ -6,17 +6,27 @@ import json
 import os
 import sys
 import shlex
+import random
 
 # For now, I want to use dbaccess.py in the parent directory.
 # Fix up the path searched by Python for modules to include the absolute path
 # to the parent directory...
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', ''))
 sys.path.insert(0, parent_dir)
+# print('======> ', parent_dir)
 
 from dbaccess import DatabaseAccessor
 
+# To support random selection of difficulty level and years, these
+# lists are used.
+diffs = [200,400,600,800,1000,1200,1600,2000,3000]
+years = [1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,\
+         2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,\
+         2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025]
 
-
+def parse(arg):
+    'Convert a series of zero or more numbers to an argument tuple'
+    return tuple(map(int, arg.split()))
 
 class OpenAIAccessor():
     def __init__(self):
@@ -72,17 +82,24 @@ class CommandProcessor(cmd.Cmd):
 
     def do_songinfo(self, args):
     	'''
-    	songinfo is here for testing the OpenAI class. Provide two arguments, each surrounded with quotes, for the srtist name and the song name.
+    	songinfo is here for testing the OpenAI class. Provide two arguments, each surrounded with quotes, for the artist name and the song name.
     	'''
     	arg_vals = shlex.split(args)
     	artist = arg_vals[0]
     	song = arg_vals[1]
     	print(self.openai.get_song_info(artist, song))
 
-    def do_random_q_a(self, difficulty):
-    	print(self.dbaccess.random_q_a(difficulty))
+    def do_random_q_a(self, arg):
+        params = parse(arg)
+        if len(params) != 2:
+            value = random.choice(diffs)
+            year = random.choice(years)
+        else:
+            value = params[0]
+            year = params[1]
+        self.dbaccess.random_q_a(value, year)
 
-    def do_questions(self, cat_id):
+    def do_category_questions(self, cat_id):
     	self.dbaccess.read_questions_for_catid(cat_id)       
 
     def do_quit(self, _):

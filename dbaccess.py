@@ -2,8 +2,10 @@ import sqlite3
 from sqlite3 import Error
 
 
+
 class DatabaseAccessor():
 	def __init__(self, db_file):
+		self.saved_cat_id = '999'
 		self.conn = None
 		try:
 			conn = sqlite3.connect(db_file, check_same_thread=False)
@@ -40,31 +42,48 @@ class DatabaseAccessor():
 
 	# Function to read all questions given a category id
 	def read_questions_for_catid(self, cat_id):
-	    
-	    query = f'select category_name,question_text,answer_text from questions, categories,answers where questions.category_id = categories.category_id and answers.question_id=questions.question_id and categories.category_id={cat_id};'
+	    if not cat_id:
+	    	cat_id = self.saved_cat_id
+
+	    query = f'SELECT c.category_name, d.difficulty_level, si.show_date, q.question_text, a.answer_text, si.show_comments \
+				  FROM Questions q\
+				  JOIN Categories c ON c.category_id=q.category_id \
+				  JOIN Difficulties d ON q.difficulty_id = d.difficulty_id \
+				  JOIN Showinfo si ON q.showinfo_id = si.showinfo_id\
+				  LEFT JOIN Answers a ON q.question_id = a.question_id\
+				  WHERE q.category_id = {cat_id}\
+				  ORDER BY si.show_date ASC, d.difficulty_id ASC;'
 	    cur = self.conn.cursor()
 	    cur.execute(query)
 	    rows = cur.fetchall()
-	    a_row = rows[0]
-	    print(f'\n{a_row[0]}\n')
-	    for row in rows:
-	        print(f'{row[1]}\n{row[2]}\n')
+	    if rows:
+		    # a_row = rows[0]
+		    print('=======================================')
+		    for row in rows:
+			    if row[5] and 'Champion' in row[5]:
+				    diff_lvl = row[1] + ': Champion'
+			    else:
+				    diff_lvl = row[1] + ': Regular'
+			    print(f'=======================================\n{row[2]} {diff_lvl}: {row[0]} \n{row[3]}\n{row[4]}\n')
 
-	def random_q_a(self, difficulty_level):
-		query = f'SELECT si.show_date, c.category_name, q.question_text, a.answer_text, d.difficulty_level, q.question_id\
+	def random_q_a(self, difficulty_level, year):
+		query = f'SELECT si.show_date, c.category_name, q.category_id, q.question_text, a.answer_text, q.question_id\
 		          FROM questions q\
 		          JOIN difficulties d ON q.difficulty_id = d.difficulty_id\
 		          JOIN categories c ON q.category_id = c.category_id\
 		          JOIN showinfo si ON q.showinfo_id = si.showinfo_id\
 		          LEFT JOIN answers a ON q.question_id = a.question_id\
-		          WHERE d.difficulty_level = {difficulty_level} and q.stage_for_use_by != -1\
+		          WHERE d.difficulty_level = {difficulty_level} and q.stage_for_use_by != -1 and si.show_date < "{year}-12-31" and si.show_date > "{year}-01-01"\
 		          ORDER BY RANDOM()\
 		          LIMIT 1'
 		cur = self.conn.cursor()
 		cur.execute(query)
 		row = cur.fetchone()
 		if row:
-			return row
+			self.saved_cat_id = row[2]
+			print (f'saved category id: {self.saved_cat_id}')
+			print(f'=======================================\n{row[0]} {difficulty_level} {row[1]} \n{row[3]}\n{row[4]}\n')
+
 		else:
 			return None
 	

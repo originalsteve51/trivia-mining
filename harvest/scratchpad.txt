@@ -57,14 +57,20 @@ _____________________________________________________
 - CAUTION: Do the first step only if starting over! 
 - NOTE: The virtual env is named 'trivia'
 
-- Make an empty database.
+1. Make an empty database.
 ./setup_jtrivia_db.sh
 
-- You can see the seasons that have already been loaded by using this sql:
+2. With an established database, open it as follows:
+sqlite3
+.open jtrivia.db
+
+3. Now you can see the seasons that have already been loaded by using this sql:
 
 select * from seasons;
 
-- Obtain a new season's worth of webids. You can do this for multiple
+.quit (to exit sqlite3)
+
+4. Obtain a new season's worth of webids. You can do this for multiple
 seasons. 
 
 ./activate_run_python.sh j-webids.py nn
@@ -74,10 +80,10 @@ You can see which seasons already have webids loaded by using this sql:
 
 select distinct season_number from webrefs inner join seasons where webrefs.season_id=seasons.season_id;
 
-- Call the script to attempt to get all screens for season nn
+5. Call the following script to attempt to get all screens for season nn
 ./get_season.sh nn (where nn is a season number)
 
-- After completing one or more seasons, you should review/process jscrape.log
+6. After completing one or more seasons, you should review/process jscrape.log
 
 Processing jscrape.log is needed to mark webrefs.is_downloaded to 1 (True) for each item
 NOT logged with download failure in the log file
